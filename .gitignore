@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 
 game.db
+
+#VS code
+.vscode/*
