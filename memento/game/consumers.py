@@ -1,14 +1,14 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-class ChatConsumer(AsyncWebsocketConsumer):
+class GameConsumer(AsyncWebsocketConsumer):
     
     tile_won  = []
     
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
-        self.room_group_name = 'chat_%s' % self.room_name
-        self.items = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5]
+        self.room_group_name = 'game_%s' % self.room_name
+        self.items = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5] #to shuffled
         # Join room group
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -18,7 +18,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
         await self.send(text_data=json.dumps({
             'items': self.items,
-            'tile_won': ChatConsumer.tile_won,
+            'tile_won': GameConsumer.tile_won,
         }))
 
     async def disconnect(self, close_code):
@@ -35,18 +35,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if 'tileOpened' in text_data_json:
             tile_opened = text_data_json['tileOpened']
         if 'tile_won' in text_data_json:
-            ChatConsumer.tile_won.extend(text_data_json['tile_won'])
+            GameConsumer.tile_won.extend(text_data_json['tile_won'])
         # Send message to room group
         await self.channel_layer.group_send(
             self.room_group_name,
             {
-                'type': 'chat_message',
+                'type': 'game_message',
                 'tile_opened': tile_opened,
             }
         )
 
     # Receive message from room group
-    async def chat_message(self, event):
+    async def game_message(self, event):
         if 'tile_opened' in event:
             tile_opened = event['tile_opened']
         else:
