@@ -4,7 +4,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 class ChatConsumer(AsyncWebsocketConsumer):
     
     tile_won  = []
-
+    
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
@@ -14,7 +14,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
-
+        
         await self.accept()
         await self.send(text_data=json.dumps({
             'items': self.items,
@@ -35,7 +35,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if 'tileOpened' in text_data_json:
             tile_opened = text_data_json['tileOpened']
         if 'tile_won' in text_data_json:
-            ChatConsumer.tile_won = text_data_json['tile_won']
+            ChatConsumer.tile_won.extend(text_data_json['tile_won'])
         # Send message to room group
         await self.channel_layer.group_send(
             self.room_group_name,
